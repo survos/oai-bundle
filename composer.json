@@ -1,0 +1,49 @@
+{
+    "name": "survos/oai-bundle",
+    "description": "Symfony bundle providing OAI-PMH 2.0 server and harvester client. Implements the Open Archives Initiative Protocol for Metadata Harvesting.",
+    "license": "MIT",
+    "type": "symfony-bundle",
+    "keywords": ["oai", "oai-pmh", "dublin-core", "metadata", "harvesting", "glam", "museum", "library", "archive"],
+    "require": {
+        "php": "^8.4",
+        "symfony/framework-bundle": "^8.0",
+        "symfony/http-foundation": "^8.0",
+        "symfony/routing": "^8.0",
+        "symfony/console": "^8.0",
+        "caseyamcl/phpoaipmh": "^3.3",
+        "ext-xmlwriter": "*"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-latest",
+        "phpunit/phpunit": "^13",
+        "phpstan/phpstan": "^2.0",
+        "phpstan/extension-installer": "^1.4",
+        "survos/jsonl-bundle": "*"
+    },
+    "suggest": {
+        "survos/jsonl-bundle": "Stream harvested records to JSONL files via the pipeline",
+        "symfony/cache": "Required for resumption token persistence"
+    },
+    "autoload": {
+        "psr-4": {
+            "Survos\\OaiBundle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Survos\\OaiBundle\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "symfony": {
+            "bundle": "Survos\\OaiBundle\\SurvosOaiBundle"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

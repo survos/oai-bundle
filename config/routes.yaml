@@ -1,0 +1,3 @@
+survos_oai:
+    resource: '../src/Controller/OaiController.php'
+    type: attribute
