@@ -18,7 +18,7 @@
         "phpunit/phpunit": "^13",
         "phpstan/phpstan": "^2.0",
         "phpstan/extension-installer": "^1.4",
-        "survos/jsonl-bundle": "*"
+        "survos/jsonl-bundle": "^2.0"
     },
     "suggest": {
         "survos/jsonl-bundle": "Stream harvested records to JSONL files via the pipeline",
