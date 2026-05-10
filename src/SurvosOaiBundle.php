@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Survos\OaiBundle;
 
+use Survos\CoreBundle\Traits\HasConfigurableRoutes;
 use Survos\OaiBundle\Command\OaiHarvestCommand;
 use Survos\OaiBundle\Contract\OaiDataProviderInterface;
 use Survos\OaiBundle\Controller\OaiController;
@@ -26,19 +27,26 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
  */
 class SurvosOaiBundle extends AbstractBundle
 {
+    use HasConfigurableRoutes;
+
     public function configure(DefinitionConfigurator $definition): void
     {
-        $definition->rootNode()
-            ->children()
-                ->integerNode('page_size')
-                    ->defaultValue(100)
-                    ->info('Number of records per resumption page.')
-                ->end()
-            ->end();
+        $children = $definition->rootNode()->children();
+        $this->addRouteOptions($children, '/oai');
+
+        $children
+            ->integerNode('page_size')
+                ->defaultValue(100)
+                ->info('Number of records per resumption page.')
+            ->end()
+        ->end();
     }
 
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
+        $this->captureRouteConfig($config);
+        $this->registerRouteLoader($builder);
+
         // Tag interface so apps can register their provider with a simple tag
         $builder->registerForAutoconfiguration(OaiDataProviderInterface::class)
             ->addTag('survos_oai.data_provider');
@@ -69,6 +77,7 @@ class SurvosOaiBundle extends AbstractBundle
     {
         parent::build($container);
         $container->addCompilerPass(new DI\OaiDataProviderPass());
+        $this->addRouteLoaderCompilerPass($container);
     }
 
     public function getPath(): string

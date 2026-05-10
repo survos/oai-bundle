@@ -9,24 +9,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-/**
- * OAI-PMH 2.0 endpoint.
- *
- * Mount at /oai (default) by importing the bundle's routing:
- *
- *   # config/routes.yaml
- *   survos_oai:
- *       resource: '@SurvosOaiBundle/config/routes.yaml'
- *
- * Or override the path in your own routing config.
- */
 final class OaiController
 {
     public function __construct(
         private readonly OaiXmlBuilder $builder,
     ) {}
 
-    #[Route('/oai', name: 'survos_oai', methods: ['GET', 'POST'])]
+    #[Route('/', name: 'survos_oai', methods: ['GET', 'POST'])]
     public function __invoke(Request $request): Response
     {
         $now  = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));

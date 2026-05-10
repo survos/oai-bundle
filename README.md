@@ -20,13 +20,8 @@ Enable the bundle if not using Flex:
 Survos\OaiBundle\SurvosOaiBundle::class => ['all' => true],
 ```
 
-Import routes:
-
-```yaml
-# config/routes.yaml
-survos_oai:
-    resource: '@SurvosOaiBundle/config/routes.yaml'
-```
+The OAI endpoint mounts at `/oai` automatically. To change it, set
+`survos_oai.route_prefix` in `config/packages/survos_oai.yaml`.
 
 ---
 
