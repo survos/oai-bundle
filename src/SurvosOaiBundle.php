@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Survos\OaiBundle;
 
-use Survos\CoreBundle\Traits\HasConfigurableRoutes;
+use Survos\Kit\Traits\HasConfigurableRoutes;
 use Survos\OaiBundle\Command\OaiHarvestCommand;
 use Survos\OaiBundle\Contract\OaiDataProviderInterface;
 use Survos\OaiBundle\Controller\OaiController;
@@ -12,7 +12,7 @@ use Survos\OaiBundle\Service\OaiXmlBuilder;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
+use Survos\Kit\AbstractSurvosBundle;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
@@ -25,7 +25,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
  *       page_size: 100          # records per resumption page
  *       # data_provider is auto-detected from tagged services
  */
-class SurvosOaiBundle extends AbstractBundle
+class SurvosOaiBundle extends AbstractSurvosBundle
 {
     use HasConfigurableRoutes;
 

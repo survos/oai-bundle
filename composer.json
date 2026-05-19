@@ -3,7 +3,17 @@
     "description": "Symfony bundle providing OAI-PMH 2.0 server and harvester client. Implements the Open Archives Initiative Protocol for Metadata Harvesting.",
     "license": "MIT",
     "type": "symfony-bundle",
-    "keywords": ["oai", "oai-pmh", "dublin-core", "metadata", "harvesting", "glam", "museum", "library", "archive"],
+    "keywords": [
+        "oai",
+        "oai-pmh",
+        "dublin-core",
+        "metadata",
+        "harvesting",
+        "glam",
+        "museum",
+        "library",
+        "archive"
+    ],
     "require": {
         "php": "^8.4",
         "symfony/framework-bundle": "^8.0",
@@ -12,7 +22,7 @@
         "symfony/console": "^8.0",
         "caseyamcl/phpoaipmh": "^3.3",
         "ext-xmlwriter": "*",
-        "survos/core-bundle": "^2.0"
+        "survos/kit-bundle": "^2.0"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
