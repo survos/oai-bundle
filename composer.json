@@ -22,14 +22,14 @@
         "symfony/console": "^8.0",
         "caseyamcl/phpoaipmh": "^3.3",
         "ext-xmlwriter": "*",
-        "survos/kit-bundle": "^2.0"
+        "survos/kit-bundle": "^2.5"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",
-        "phpunit/phpunit": "^13",
+        "phpunit/phpunit": "^13.0",
         "phpstan/phpstan": "^2.0",
         "phpstan/extension-installer": "^1.4",
-        "survos/jsonl-bundle": "^2.0"
+        "survos/jsonl-bundle": "^2.5"
     },
     "suggest": {
         "survos/jsonl-bundle": "Stream harvested records to JSONL files via the pipeline",
