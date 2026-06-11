@@ -25,7 +25,6 @@
         "survos/kit-bundle": "^2.5"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-latest",
         "phpunit/phpunit": "^13.0",
         "phpstan/phpstan": "^2.0",
         "phpstan/extension-installer": "^1.4",
