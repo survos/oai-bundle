@@ -25,6 +25,7 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
  *       page_size: 100          # records per resumption page
  *       # data_provider is auto-detected from tagged services
  */
+// Symfony\Component\HttpKernel\Bundle\Bundle <-- Flex auto-registration marker (see Survos\Kit\AbstractSurvosBundle)
 class SurvosOaiBundle extends AbstractSurvosBundle
 {
     use HasConfigurableRoutes;
