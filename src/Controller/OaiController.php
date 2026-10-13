@@ -13,30 +13,31 @@ final class OaiController
 {
     public function __construct(
         private readonly OaiXmlBuilder $builder,
-    ) {}
+    ) {
+    }
 
     #[Route('/', name: 'survos_oai', methods: ['GET', 'POST'])]
     public function __invoke(Request $request): Response
     {
-        $now  = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
         $verb = trim((string) ($request->query->get('verb') ?? $request->request->get('verb') ?? ''));
 
         $xml = match ($verb) {
-            'Identify'            => $this->builder->identify($verb, $now),
+            'Identify' => $this->builder->identify($verb, $now),
             'ListMetadataFormats' => $this->builder->listMetadataFormats(
                 $verb,
                 $now,
                 $request->get('identifier'),
             ),
-            'ListSets'            => $this->builder->listSets($verb, $now),
-            'GetRecord'           => $this->handleGetRecord($verb, $now, $request),
-            'ListIdentifiers'     => $this->handleList($verb, $now, $request),
-            'ListRecords'         => $this->handleList($verb, $now, $request),
-            default               => $this->builder->errorResponse(
+            'ListSets' => $this->builder->listSets($verb, $now),
+            'GetRecord' => $this->handleGetRecord($verb, $now, $request),
+            'ListIdentifiers' => $this->handleList($verb, $now, $request),
+            'ListRecords' => $this->handleList($verb, $now, $request),
+            default => $this->builder->errorResponse(
                 $verb ?: 'unknown',
                 $now,
                 'badVerb',
-                $verb === ''
+                '' === $verb
                     ? 'No verb supplied in request.'
                     : "'{$verb}' is not a legal OAI-PMH verb.",
             ),
@@ -47,13 +48,13 @@ final class OaiController
 
     private function handleGetRecord(string $verb, \DateTimeImmutable $now, Request $request): string
     {
-        $identifier     = trim((string) ($request->get('identifier') ?? ''));
+        $identifier = trim((string) ($request->get('identifier') ?? ''));
         $metadataPrefix = trim((string) ($request->get('metadataPrefix') ?? ''));
 
-        if ($identifier === '') {
+        if ('' === $identifier) {
             return $this->builder->errorResponse($verb, $now, 'badArgument', 'Missing required argument: identifier.');
         }
-        if ($metadataPrefix === '') {
+        if ('' === $metadataPrefix) {
             return $this->builder->errorResponse($verb, $now, 'badArgument', 'Missing required argument: metadataPrefix.');
         }
 
@@ -65,33 +66,34 @@ final class OaiController
         $resumptionToken = $request->get('resumptionToken');
 
         // When a resumptionToken is supplied, all other arguments are ignored per spec
-        if ($resumptionToken !== null) {
+        if (null !== $resumptionToken) {
             $metadataPrefix = 'oai_dc'; // recovered from token
             $from = $until = $set = null;
         } else {
             $metadataPrefix = trim((string) ($request->get('metadataPrefix') ?? ''));
-            if ($metadataPrefix === '') {
+            if ('' === $metadataPrefix) {
                 return $this->builder->errorResponse($verb, $now, 'badArgument', 'Missing required argument: metadataPrefix.');
             }
 
-            $from  = $this->parseDate($request->get('from'));
+            $from = $this->parseDate($request->get('from'));
             $until = $this->parseDate($request->get('until'));
-            $set   = $request->get('set') ? trim((string) $request->get('set')) : null;
+            $set = $request->get('set') ? trim((string) $request->get('set')) : null;
         }
 
-        return $verb === 'ListIdentifiers'
+        return 'ListIdentifiers' === $verb
             ? $this->builder->listIdentifiers($verb, $now, $metadataPrefix, $from, $until, $set, $resumptionToken)
             : $this->builder->listRecords($verb, $now, $metadataPrefix, $from, $until, $set, $resumptionToken);
     }
 
     private function parseDate(?string $value): ?\DateTimeImmutable
     {
-        if ($value === null || $value === '') {
+        if (null === $value || '' === $value) {
             return null;
         }
         // Accept YYYY-MM-DD and YYYY-MM-DDThh:mm:ssZ
         $dt = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s\Z', $value, new \DateTimeZone('UTC'))
             ?: \DateTimeImmutable::createFromFormat('Y-m-d', $value, new \DateTimeZone('UTC'));
+
         return $dt ?: null;
     }
 }

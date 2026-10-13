@@ -28,15 +28,12 @@ final class OaiDataProviderPass implements CompilerPassInterface
                     $container->removeDefinition($id);
                 }
             }
+
             return;
         }
 
         if (count($tagged) > 1) {
-            throw new \LogicException(sprintf(
-                'Multiple services tagged "survos_oai.data_provider" found (%s). '
-                . 'Only one OaiDataProviderInterface implementation may be registered.',
-                implode(', ', array_keys($tagged)),
-            ));
+            throw new \LogicException(sprintf('Multiple services tagged "survos_oai.data_provider" found (%s). Only one OaiDataProviderInterface implementation may be registered.', implode(', ', array_keys($tagged))));
         }
 
         $providerId = array_key_first($tagged);

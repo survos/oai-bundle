@@ -53,20 +53,20 @@ final class OaiHarvestCommand
         $io->title(sprintf('OAI-PMH harvest: %s', $baseUrl));
 
         $endpoint = Endpoint::build($baseUrl);
-        $fromDt   = $from  ? new \DateTimeImmutable($from)  : null;
-        $untilDt  = $until ? new \DateTimeImmutable($until) : null;
+        $fromDt = $from ? new \DateTimeImmutable($from) : null;
+        $untilDt = $until ? new \DateTimeImmutable($until) : null;
 
-        $writer = $out === '-' ? null : new \SplFileObject($out, 'w');
-        $count  = 0;
+        $writer = '-' === $out ? null : new \SplFileObject($out, 'w');
+        $count = 0;
 
         if ($identifiersOnly) {
             $iter = $endpoint->listIdentifiers($prefix, $fromDt, $untilDt, $set);
             foreach ($iter as $header) {
                 $this->emit([
-                    'verb'       => 'ListIdentifiers',
+                    'verb' => 'ListIdentifiers',
                     'identifier' => (string) ($header->identifier ?? ''),
-                    'datestamp'  => (string) ($header->datestamp  ?? ''),
-                    'setSpec'    => $this->toStringArray($header->setSpec ?? null),
+                    'datestamp' => (string) ($header->datestamp ?? ''),
+                    'setSpec' => $this->toStringArray($header->setSpec ?? null),
                 ], $writer, $io);
 
                 if ($max > 0 && ++$count >= $max) {
@@ -76,17 +76,17 @@ final class OaiHarvestCommand
         } else {
             $iter = $endpoint->listRecords($prefix, $fromDt, $untilDt, $set);
             foreach ($iter as $rec) {
-                $header     = $rec->header ?? null;
+                $header = $rec->header ?? null;
                 [$dc, $raw] = $this->parseOaiDc($rec);
 
                 $this->emit([
-                    'verb'       => 'ListRecords',
+                    'verb' => 'ListRecords',
                     'identifier' => $header ? (string) $header->identifier : '',
-                    'datestamp'  => $header ? (string) $header->datestamp  : '',
-                    'setSpec'    => $header ? $this->toStringArray($header->setSpec ?? null) : [],
-                    'deleted'    => isset($header['status']) && (string) $header['status'] === 'deleted',
-                    'metadata'   => $dc,
-                    '_raw'       => $raw,
+                    'datestamp' => $header ? (string) $header->datestamp : '',
+                    'setSpec' => $header ? $this->toStringArray($header->setSpec ?? null) : [],
+                    'deleted' => isset($header['status']) && 'deleted' === (string) $header['status'],
+                    'metadata' => $dc,
+                    '_raw' => $raw,
                 ], $writer, $io);
 
                 if ($max > 0 && ++$count >= $max) {
@@ -96,13 +96,14 @@ final class OaiHarvestCommand
         }
 
         $io->success(sprintf('Harvested %d record(s) → %s', $count, $out));
+
         return 0;
     }
 
     private function emit(array $row, ?\SplFileObject $file, SymfonyStyle $io): void
     {
-        $line = json_encode($row, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
-        if ($file !== null) {
+        $line = json_encode($row, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n";
+        if (null !== $file) {
             $file->fwrite($line);
         } else {
             $io->write($line, false);
@@ -123,9 +124,9 @@ final class OaiHarvestCommand
             return [null, $rawXml];
         }
 
-        $ns      = $rec->metadata->getNamespaces(true);
+        $ns = $rec->metadata->getNamespaces(true);
         $oaiDcNs = $ns['oai_dc'] ?? null;
-        $dcNs    = $ns['dc']     ?? null;
+        $dcNs = $ns['dc'] ?? null;
 
         if (!$oaiDcNs || !$dcNs) {
             return [null, $rawXml];
@@ -143,7 +144,7 @@ final class OaiHarvestCommand
 
         // Collapse single-value arrays to plain strings
         foreach ($dc as $k => $vals) {
-            if (count($vals) === 1) {
+            if (1 === count($vals)) {
                 $dc[$k] = $vals[0];
             }
         }
@@ -154,9 +155,10 @@ final class OaiHarvestCommand
     /** @return string[] */
     private function toStringArray(mixed $nodes): array
     {
-        if ($nodes === null) {
+        if (null === $nodes) {
             return [];
         }
+
         return array_map('strval', iterator_to_array($nodes));
     }
 }

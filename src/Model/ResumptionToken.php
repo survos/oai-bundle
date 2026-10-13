@@ -22,20 +22,21 @@ final readonly class ResumptionToken
         public ?string $until = null,
         public ?int $completeListSize = null,
         public ?\DateTimeImmutable $expirationDate = null,
-    ) {}
+    ) {
+    }
 
     public static function encode(self $token): string
     {
         return base64_encode(json_encode([
-            'verb'             => $token->verb,
-            'metadataPrefix'   => $token->metadataPrefix,
-            'offset'           => $token->offset,
-            'pageSize'         => $token->pageSize,
-            'set'              => $token->set,
-            'from'             => $token->from,
-            'until'            => $token->until,
+            'verb' => $token->verb,
+            'metadataPrefix' => $token->metadataPrefix,
+            'offset' => $token->offset,
+            'pageSize' => $token->pageSize,
+            'set' => $token->set,
+            'from' => $token->from,
+            'until' => $token->until,
             'completeListSize' => $token->completeListSize,
-            'expirationDate'   => $token->expirationDate?->format(\DateTimeInterface::ATOM),
+            'expirationDate' => $token->expirationDate?->format(\DateTimeInterface::ATOM),
         ], JSON_THROW_ON_ERROR));
     }
 
@@ -44,15 +45,15 @@ final readonly class ResumptionToken
         $data = json_decode(base64_decode($raw, strict: true), associative: true, flags: JSON_THROW_ON_ERROR);
 
         return new self(
-            verb:             $data['verb'],
-            metadataPrefix:   $data['metadataPrefix'],
-            offset:           (int) $data['offset'],
-            pageSize:         (int) $data['pageSize'],
-            set:              $data['set'] ?? null,
-            from:             $data['from'] ?? null,
-            until:            $data['until'] ?? null,
+            verb: $data['verb'],
+            metadataPrefix: $data['metadataPrefix'],
+            offset: (int) $data['offset'],
+            pageSize: (int) $data['pageSize'],
+            set: $data['set'] ?? null,
+            from: $data['from'] ?? null,
+            until: $data['until'] ?? null,
             completeListSize: isset($data['completeListSize']) ? (int) $data['completeListSize'] : null,
-            expirationDate:   isset($data['expirationDate'])
+            expirationDate: isset($data['expirationDate'])
                 ? new \DateTimeImmutable($data['expirationDate'])
                 : null,
         );
@@ -60,22 +61,22 @@ final readonly class ResumptionToken
 
     public function isExpired(): bool
     {
-        return $this->expirationDate !== null
+        return null !== $this->expirationDate
             && $this->expirationDate < new \DateTimeImmutable('now');
     }
 
     public function nextPage(): self
     {
         return new self(
-            verb:             $this->verb,
-            metadataPrefix:   $this->metadataPrefix,
-            offset:           $this->offset + $this->pageSize,
-            pageSize:         $this->pageSize,
-            set:              $this->set,
-            from:             $this->from,
-            until:            $this->until,
+            verb: $this->verb,
+            metadataPrefix: $this->metadataPrefix,
+            offset: $this->offset + $this->pageSize,
+            pageSize: $this->pageSize,
+            set: $this->set,
+            from: $this->from,
+            until: $this->until,
             completeListSize: $this->completeListSize,
-            expirationDate:   $this->expirationDate,
+            expirationDate: $this->expirationDate,
         );
     }
 }

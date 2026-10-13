@@ -13,12 +13,12 @@ use Survos\OaiBundle\Model\ResumptionToken;
  */
 final class OaiXmlBuilder
 {
-    private const OAI_NS        = 'http://www.openarchives.org/OAI/2.0/';
-    private const OAI_SCHEMA    = 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd';
-    private const OAI_DC_NS     = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
+    private const OAI_NS = 'http://www.openarchives.org/OAI/2.0/';
+    private const OAI_SCHEMA = 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd';
+    private const OAI_DC_NS = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
     private const OAI_DC_SCHEMA = 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd';
-    private const DC_NS         = 'http://purl.org/dc/elements/1.1/';
-    private const XSI_NS        = 'http://www.w3.org/2001/XMLSchema-instance';
+    private const DC_NS = 'http://purl.org/dc/elements/1.1/';
+    private const XSI_NS = 'http://www.w3.org/2001/XMLSchema-instance';
 
     /** Valid bare Dublin Core element names. */
     private const DC_ELEMENTS = [
@@ -30,7 +30,8 @@ final class OaiXmlBuilder
     public function __construct(
         private readonly OaiDataProviderInterface $provider,
         private readonly int $pageSize = 100,
-    ) {}
+    ) {
+    }
 
     // -------------------------------------------------------------------------
     // Public verb methods
@@ -50,6 +51,7 @@ final class OaiXmlBuilder
         $w->writeElement('deletedRecord', $this->provider->getDeletedRecordPolicy());
         $w->writeElement('granularity', 'YYYY-MM-DDThh:mm:ssZ');
         $w->endElement(); // Identify
+
         return $this->endResponse($w);
     }
 
@@ -57,9 +59,9 @@ final class OaiXmlBuilder
     {
         $w = $this->beginResponse($verb, $responseDate);
 
-        if ($identifier !== null) {
+        if (null !== $identifier) {
             $record = $this->provider->getRecord($identifier);
-            if ($record === null) {
+            if (null === $record) {
                 return $this->errorResponse($verb, $responseDate, 'idDoesNotExist', "No record with identifier '{$identifier}'.");
             }
         }
@@ -71,6 +73,7 @@ final class OaiXmlBuilder
         $w->writeElement('metadataNamespace', self::OAI_DC_NS);
         $w->endElement(); // metadataFormat
         $w->endElement(); // ListMetadataFormats
+
         return $this->endResponse($w);
     }
 
@@ -87,7 +90,7 @@ final class OaiXmlBuilder
             $w->startElement('set');
             $w->writeElement('setSpec', $set['spec']);
             $w->writeElement('setName', $set['name']);
-            if ($set['description'] !== null) {
+            if (null !== $set['description']) {
                 $w->startElement('setDescription');
                 $w->writeRaw($set['description']);
                 $w->endElement();
@@ -95,17 +98,18 @@ final class OaiXmlBuilder
             $w->endElement(); // set
         }
         $w->endElement(); // ListSets
+
         return $this->endResponse($w);
     }
 
     public function getRecord(string $verb, \DateTimeImmutable $responseDate, string $identifier, string $metadataPrefix): string
     {
-        if ($metadataPrefix !== 'oai_dc') {
+        if ('oai_dc' !== $metadataPrefix) {
             return $this->errorResponse($verb, $responseDate, 'cannotDisseminateFormat', "Metadata prefix '{$metadataPrefix}' is not supported.");
         }
 
         $record = $this->provider->getRecord($identifier);
-        if ($record === null) {
+        if (null === $record) {
             return $this->errorResponse($verb, $responseDate, 'idDoesNotExist', "No record with identifier '{$identifier}'.");
         }
 
@@ -113,6 +117,7 @@ final class OaiXmlBuilder
         $w->startElement('GetRecord');
         $this->writeRecord($w, $record, includeMetadata: true);
         $w->endElement(); // GetRecord
+
         return $this->endResponse($w);
     }
 
@@ -172,7 +177,7 @@ final class OaiXmlBuilder
         ?string $resumptionTokenRaw,
         bool $includeMetadata,
     ): string {
-        if ($metadataPrefix !== 'oai_dc') {
+        if ('oai_dc' !== $metadataPrefix) {
             return $this->errorResponse($verb, $responseDate, 'cannotDisseminateFormat', "Metadata prefix '{$metadataPrefix}' is not supported.");
         }
 
@@ -180,7 +185,7 @@ final class OaiXmlBuilder
         $tokenExpiresAt = new \DateTimeImmutable('+1 hour');
 
         // Decode resumption token if present
-        if ($resumptionTokenRaw !== null) {
+        if (null !== $resumptionTokenRaw) {
             try {
                 $token = ResumptionToken::decode($resumptionTokenRaw);
             } catch (\Throwable) {
@@ -189,17 +194,17 @@ final class OaiXmlBuilder
             if ($token->isExpired()) {
                 return $this->errorResponse($verb, $responseDate, 'badResumptionToken', 'The resumption token has expired.');
             }
-            $offset         = $token->offset;
-            $from           = $token->from  ? new \DateTimeImmutable($token->from)  : null;
-            $until          = $token->until ? new \DateTimeImmutable($token->until) : null;
-            $set            = $token->set;
+            $offset = $token->offset;
+            $from = $token->from ? new \DateTimeImmutable($token->from) : null;
+            $until = $token->until ? new \DateTimeImmutable($token->until) : null;
+            $set = $token->set;
             $metadataPrefix = $token->metadataPrefix;
         }
 
         $records = $this->provider->getRecords($from, $until, $set, $offset, $this->pageSize);
-        $items   = iterator_to_array($records, preserve_keys: false);
+        $items = iterator_to_array($records, preserve_keys: false);
 
-        if (empty($items) && $offset === 0) {
+        if (empty($items) && 0 === $offset) {
             return $this->errorResponse($verb, $responseDate, 'noRecordsMatch', 'No records match the given criteria.');
         }
 
@@ -215,30 +220,30 @@ final class OaiXmlBuilder
         // Emit resumption token if there may be more pages
         if (count($items) === $this->pageSize) {
             $nextToken = new ResumptionToken(
-                verb:             $verb,
-                metadataPrefix:   $metadataPrefix,
-                offset:           $offset + $this->pageSize,
-                pageSize:         $this->pageSize,
-                set:              $set,
-                from:             $from?->format('Y-m-d'),
-                until:            $until?->format('Y-m-d'),
+                verb: $verb,
+                metadataPrefix: $metadataPrefix,
+                offset: $offset + $this->pageSize,
+                pageSize: $this->pageSize,
+                set: $set,
+                from: $from?->format('Y-m-d'),
+                until: $until?->format('Y-m-d'),
                 completeListSize: $total,
-                expirationDate:   $tokenExpiresAt,
+                expirationDate: $tokenExpiresAt,
             );
 
             $w->startElement('resumptionToken');
             $w->writeAttribute('expirationDate', $tokenExpiresAt->format(\DateTimeInterface::ATOM));
-            if ($total !== null) {
+            if (null !== $total) {
                 $w->writeAttribute('completeListSize', (string) $total);
             }
             $w->writeAttribute('cursor', (string) $offset);
             $w->text(ResumptionToken::encode($nextToken));
             $w->endElement();
-        } elseif ($resumptionTokenRaw !== null) {
+        } elseif (null !== $resumptionTokenRaw) {
             // Final page after resumption: emit empty token to signal completion
             $w->startElement('resumptionToken');
             $w->writeAttribute('cursor', (string) $offset);
-            if ($total !== null) {
+            if (null !== $total) {
                 $w->writeAttribute('completeListSize', (string) $total);
             }
             $w->text('');
@@ -246,6 +251,7 @@ final class OaiXmlBuilder
         }
 
         $w->endElement(); // verb element
+
         return $this->endResponse($w);
     }
 
@@ -272,7 +278,7 @@ final class OaiXmlBuilder
             $w->writeAttributeNS('xmlns', 'dc', null, self::DC_NS);
             $w->writeAttributeNS('xmlns', 'xsi', null, self::XSI_NS);
             $w->writeAttributeNS('xsi', 'schemaLocation', null,
-                self::OAI_DC_NS . ' ' . self::OAI_DC_SCHEMA);
+                self::OAI_DC_NS.' '.self::OAI_DC_SCHEMA);
 
             foreach ($record->getOaiDublinCore() as $element => $value) {
                 if (!in_array($element, self::DC_ELEMENTS, true)) {
@@ -303,12 +309,13 @@ final class OaiXmlBuilder
         $w->startElementNS(null, 'OAI-PMH', self::OAI_NS);
         $w->writeAttributeNS('xmlns', 'xsi', null, self::XSI_NS);
         $w->writeAttributeNS('xsi', 'schemaLocation', null,
-            self::OAI_NS . ' ' . self::OAI_SCHEMA);
+            self::OAI_NS.' '.self::OAI_SCHEMA);
         $w->writeElement('responseDate', $responseDate->format(\DateTimeInterface::ATOM));
         $w->startElement('request');
         $w->writeAttribute('verb', $verb);
         $w->text($this->provider->getBaseUrl());
         $w->endElement();
+
         return $w;
     }
 
@@ -316,6 +323,7 @@ final class OaiXmlBuilder
     {
         $w->endElement(); // OAI-PMH
         $w->endDocument();
+
         return $w->outputMemory();
     }
 
@@ -329,7 +337,7 @@ final class OaiXmlBuilder
         $w->startElementNS(null, 'OAI-PMH', self::OAI_NS);
         $w->writeAttributeNS('xmlns', 'xsi', null, self::XSI_NS);
         $w->writeAttributeNS('xsi', 'schemaLocation', null,
-            self::OAI_NS . ' ' . self::OAI_SCHEMA);
+            self::OAI_NS.' '.self::OAI_SCHEMA);
         $w->writeElement('responseDate', $responseDate->format(\DateTimeInterface::ATOM));
         $w->startElement('request');
         $w->text($this->provider->getBaseUrl());
@@ -340,6 +348,7 @@ final class OaiXmlBuilder
         $w->endElement();
         $w->endElement(); // OAI-PMH
         $w->endDocument();
+
         return $w->outputMemory();
     }
 

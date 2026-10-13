@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Survos\OaiBundle;
 
+use Survos\Kit\AbstractSurvosBundle;
 use Survos\Kit\Traits\HasConfigurableRoutes;
 use Survos\OaiBundle\Command\OaiHarvestCommand;
 use Survos\OaiBundle\Contract\OaiDataProviderInterface;
@@ -12,7 +13,6 @@ use Survos\OaiBundle\Service\OaiXmlBuilder;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use Survos\Kit\AbstractSurvosBundle;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
